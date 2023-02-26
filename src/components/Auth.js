@@ -25,14 +25,14 @@ const Auth = () => {
     e.preventDefault();
     let res;
 
-    const body= {
+    const body = {
         username, 
         password
     }
     try{
       if(register){
         res = await axios.post(`${url}/register`, body);
-    } else {
+      } else {
         res = await axios.post(`${url}/login`, body);
       }
     } catch(err) {
@@ -40,9 +40,11 @@ const Auth = () => {
                 setUsername('')
                 console.log(err);
     }
-    console.log("res", res);
+    console.log("AFTER AUTH", res.data);
     authCtx.login(res.data.token, res.data.exp, res.data.userId)
   }
+
+
 
   return (
     <main>

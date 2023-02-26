@@ -1,9 +1,82 @@
-const login = (req, res) => {
-    console.log('login')
+require('dotenv').config();
+
+const { SECRET } = process.env;
+const { User } = require('../models/user');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const createToken = (username, id) => {
+    return jwt.sign (
+        {
+            username, 
+            id
+        },
+        SECRET, 
+        {
+            expiresIn: '2 days'
+        }
+    )
 }
-const register = (req, res) => {
-    console.log('register')
+
+const login = async (req, res) => {
+    try{
+        const {username, password} = req.body
+        let foundUser = await User.findOne({where: {username}})
+
+        if(foundUser){
+            const isAuthenticated = bcrypt.compareSync(password, foundUser.hashedPass);
+
+            if(isAuthenticated){
+                const token = createToken(foundUser.dataValues.username, foundUser.dataValues.id)
+                    const exp = Date.now() + 1000 * 60 * 60 * 48;
+                    res.status(200).send({
+                        username: foundUser.dataValues.username,
+                        userId: foundUser.dataValues.id,
+                        token,
+                        exp 
+                    });
+            } else{
+                res.status(400).send('Cannot log in');
+            }
+        } else{
+            res.status(400).send('Cannot log in');
+        }
+    } catch(err) {
+        console.log('An error has occured in the log in process.')
+        console.log(err)
+        res.status(400)
+    }
 }
+const register = async (req, res) => {
+    try{
+        const { username, password } = req.body;
+        let foundUser = await User.findOne({ where:{ username }})
+
+        if(foundUser){
+            res.status(400).send('There is an existing user with this account.')
+        } else{
+            const salt = bcrypt.genSaltSync(10);
+            const hash = bcrypt.hashSync(password, salt);
+            const newUser = await User.create({ username, hashedPass: hash });
+            const token = createToken(newUser.dataValues.username, newUser.dataValues.id);
+                  console.log('TOOOOKEN', token);
+            const exp = Date.now() + 1000 * 60 * 60 * 48;
+
+            res.status(200).send({
+                username: newUser.dataValues.username,
+                userId: newUser.dataValues.id,
+                token,
+                exp 
+            });
+        };
+    } catch(err){
+        console.log('An error has occured in the registration process');
+        console.log(err)
+        res.status(400)
+    };
+}
+
+
 module.exports = {
     login,
     register
