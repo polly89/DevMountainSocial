@@ -2,13 +2,15 @@ import axios from 'axios';
 import { useState, useContext } from "react";
 import { AuthContext } from '../store/authContext'
 
+
 const Auth = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [register, setRegister] = useState(true);
   
   const authCtx = useContext(AuthContext)
-  const url = 'https://socialmtn.devmountain.com'
+  // const url = 'https://socialmtn.devmountain.com'
+
 
   const handleUserInput = (e) =>{
     setUsername(e.target.value)
@@ -31,9 +33,11 @@ const Auth = () => {
     }
     try{
       if(register){
-        res = await axios.post(`${url}/register`, body);
+        // res = await axios.post(`${url}/register`, body);
+        res = await axios.post(`/register`, body);
       } else {
-        res = await axios.post(`${url}/login`, body);
+        res = await axios.post(`/login`, body);
+        // res = await axios.post(`${url}/login`, body);
       }
     } catch(err) {
                 setPassword('')

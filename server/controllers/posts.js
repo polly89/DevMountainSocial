@@ -46,11 +46,31 @@ const addPost = async (req, res)=>  {
         res.sendStatus(400)
     }
 }
-const editPost = (req, res)=>  {
-    console.log('allow user to make changes')
+const editPost = async (req, res)=>  {
+    try{
+        const { id } = req.params;
+        const { status } = req.body;
+        await Post.update( { privateStatus: status }, {
+            where: { id: +id }
+        })
+        res.sendStatus(200)
+    }catch (err){
+        console.log('Unable to edit')
+        console.log(err)
+        res.sendStatus(400)
+    }
 }
-const deletePost = (req, res)=>  {
-    console.log('allow user to delete their post')
+const deletePost = async (req, res)=>  {
+    try{
+        const { id } = req.params;
+        await Post.destroy({ where: { id: +id } })
+        res.sendStatus(200)
+        
+    }catch (err) {
+        console.log('Cannot delete')
+        console.log(err)
+        res.sendStatus(400)
+    }
 }
 
 module.exports = {
